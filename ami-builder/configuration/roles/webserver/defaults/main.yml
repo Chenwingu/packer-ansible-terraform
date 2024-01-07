@@ -1,0 +1,4 @@
+---
+web:
+  package: nginx
+  service: nginx

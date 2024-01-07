@@ -1,0 +1,106 @@
+name: Automate provisioning of Immutable Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  packer-ansible:
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Configure AWS credentials from AWS Account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: ${{ secrets.AWS_REGION }}
+          
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+
+      - name: Set up Packer
+        env:
+          PACKER_LOG: 1
+        id: setup
+        uses: hashicorp/setup-packer@main
+
+      - name: Packer Init
+        id: init
+        run: packer init ./ami-builder/
+
+      - name: Packer Format
+        id: fmt
+        run: packer fmt ./ami-builder/
+
+      - name: Packer Validate
+        id: validate
+        run: packer validate ./ami-builder/
+
+      - name: Build Image
+        id: build
+        run: packer build ./ami-builder/
+
+  Terraform-commands:
+    runs-on: ubuntu-latest
+    needs: packer-ansible
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+    env:
+      TF_LOG: INFO
+      TF_VAR_web-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+
+    steps:
+      - name: Configure AWS credentials from AWS Account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        id: terraform
+        with:
+           terraform_version: 1.5.5
+
+      - name: Terraform Init
+        id: init
+        env:
+          AWS_BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_BUCKET_KEY_NAME: ${{ secrets.AWS_BUCKET_KEY_NAME }}
+        run: |
+           rm -rf .terraform  
+           terraform init -backend-config="bucket=${AWS_BUCKET_NAME}" -backend-config="key=${AWS_BUCKET_KEY_NAME}" -backend-config="region=us-east-2"
+
+      - name: Terraform Format
+        id: format
+        run: terraform fmt 
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate 
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -input=false
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -input=false
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      

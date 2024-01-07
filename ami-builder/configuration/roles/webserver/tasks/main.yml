@@ -1,0 +1,42 @@
+---
+- name: "Ensure nginx user exists"
+  user:
+    name: nginx
+    system: yes
+
+- name: "Install web server"
+  package:
+    name: "{{ web.package }}"
+    state: present
+
+- name: "Copy nginx configuration"
+  copy:
+    src: "roles/webserver/files/nginx.conf"
+    dest: "/etc/nginx/nginx.conf"
+    mode: 0644
+  notify: restart webserver
+
+- name: "Create directory"
+  file:
+    path: "/var/www/chenwi"
+    state: directory
+    owner: "nginx"
+    mode: "0755"
+
+- name: "Copy website files"
+  copy:
+      src: "roles/webserver/files/website/index.html"
+      dest: "/var/www/chenwi"
+      mode: 0644
+
+- name: "Update website nginx config"
+  copy:
+      src: "roles/webserver/files/website.conf"
+      dest: "/etc/nginx/conf.d/chenwi.conf"
+      mode: 0644
+
+- name: "Start Web Service"
+  service:
+    name: "{{ web.service }}"
+    state: started
+    enabled: yes
