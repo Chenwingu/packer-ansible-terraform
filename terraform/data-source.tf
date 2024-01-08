@@ -1,4 +1,4 @@
-#Define the Data Source for the WebServer
+#Define the Data Source for the Webserver
 data "aws_availability_zones" "web" {
   all_availability_zones = true
 
