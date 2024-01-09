@@ -19,4 +19,6 @@ This project leverages the power of Packer, Ansible, Terraform, and GitHub Actio
 
 **Terraform**: Terraform creates and manages your infrastructure resources like VPCs, subnets, security groups, and instances. Instead of modifying existing instances, it creates new instances with the updated configuration when needed.
 
-**GitHub Actions**: GitHub Actions automates the entire process, enhancing efficiency. It consists of two jobs: packer-ansible and Terraform-commands. The packer-ansible job sets up Packer and Ansible, and builds an Amazon Machine Image (AMI). The Terraform-commands job sets up Terraform and applies a Terraform plan to provision infrastructure.
+**GitHub Actions**: GitHub Actions automates the entire process, enhancing efficiency. The [workflows](https://github.com/Chenwingu/packer-ansible-terraform/blob/main/.github/workflows/packer-ansible-terraform.yml) consists of two jobs: packer-ansible and Terraform-commands. The packer-ansible job sets up Packer and Ansible, and builds an Amazon Machine Image (AMI). The Terraform-commands job sets up Terraform and applies a Terraform plan to provision infrastructure.
+
+Checkout complete description [here](https://medium.com/@chenwingu/leverage-packer-ansible-terraform-and-github-actions-for-immutable-infrastructure-automation-317f6d26c949)
