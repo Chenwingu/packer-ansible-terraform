@@ -1,4 +1,6 @@
+# Immutable Infrastructure Automation with Packer, Ansible, Terraform and GitHub Actions
 
+![image](https://github.com/Chenwingu/packer-ansible-terraform/blob/main/packer-ansible-terraform.png)
 
 # Project Description
 This project leverages the power of Packer, Ansible, Terraform, and GitHub Actions to automate the creation of an immutable infrastructure. Immutable infrastructure is a model where servers, once deployed, are never modified. Instead, changes are made by deploying new servers built from a common image.
