@@ -9,6 +9,10 @@ on:
 jobs:
   packer-ansible:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./ami-builder/
       
     steps:
       - name: Configure AWS credentials from AWS Account
@@ -35,19 +39,19 @@ jobs:
 
       - name: Packer Init
         id: init
-        run: packer init ./ami-builder/
+        run: packer init 
 
       - name: Packer Format
         id: fmt
-        run: packer fmt ./ami-builder/
+        run: packer fmt 
 
       - name: Packer Validate
         id: validate
-        run: packer validate ./ami-builder/
+        run: packer validate 
 
       - name: Build Image
         id: build
-        run: packer build ./ami-builder/
+        run: packer build 
 
   Terraform-commands:
     runs-on: ubuntu-latest
